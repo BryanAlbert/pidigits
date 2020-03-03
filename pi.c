@@ -9,23 +9,26 @@
  *
  * This program uses a variation of the formula found by Gosper in 1974 :
  *
- * pi = sum( (25*n-3)/(binomial(3*n,n)*2^(n-1)), n=0..infinity);
+ * pi = sum((25*n-3)/(binomial(3*n,n)*2^(n-1)), n=0..infinity);
  *
  * This program uses mostly integer arithmetic. It may be slow on some
- * hardwares where integer multiplications and divisons must be done by
+ * hardware where integer multiplication and divison must be done by
  * software. We have supposed that 'int' has a size of at least 32 bits. If
  * your compiler supports 'long long' integers of 64 bits, you may use the
  * integer version of 'mul_mod' (see HAS_LONG_LONG).
  * 
  * From https://bellard.org/pi/pi1.c, see https://bellard.org/pi/
+ * 
  */
+
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
 
- /* uncomment the following line to use 'long long' integers */
- /* #define HAS_LONG_LONG */
+
+ /* uncomment the following line to use 'long long' integers (which we do) */
+ #define HAS_LONG_LONG
 
 #ifdef HAS_LONG_LONG
 #define mul_mod(a, b, m) (((long long)(a) * (long long)(b)) % (m))
@@ -33,15 +36,37 @@
 #define mul_mod(a, b, m) fmod((double)a *(double)b, m)
 #endif
 
+#define DIVN(t, a, v, vinc, kq, kqinc) \
+{													\
+	kq += kqinc;								\
+	if (kq >= a)								\
+	{												\
+		do											\
+		{											\
+			kq -= a;								\
+		} while (kq >= a);					\
+		if (kq == 0)							\
+		{											\
+			do										\
+			{										\
+				t = t / a;						\
+				v += vinc;						\
+			} while ((t % a) == 0); 		\
+		}											\
+	}												\
+}
+
+
 /* return the inverse of x mod y */
 int inv_mod(int x, int y)
 {
-	int q, u, v, a, c, t;
+	int q, t;
 
-	u = x;
-	v = y;
-	c = 1;
-	a = 0;
+	int u = x;
+	int v = y;
+	int c = 1;
+	int a = 0;
+
 	do
 	{
 		q = v / u;
@@ -54,22 +79,24 @@ int inv_mod(int x, int y)
 		u = v - q * u;
 		v = t;
 	} while (u != 0);
+
 	a = a % y;
 	if (a < 0)
 		a = y + a;
+	
 	return a;
 }
 
 /* return the inverse of u mod v, if v is odd */
 int inv_mod2(int u, int v)
 {
-	int u1, u3, v1, v3, t1, t3;
+	int t1, t3;
 
-	u1 = 1;
-	u3 = u;
+	int u1 = 1;
+	int u3 = u;
 
-	v1 = v;
-	v3 = v;
+	int v1 = v;
+	int v3 = v;
 
 	if ((u & 1) != 0)
 	{
@@ -85,7 +112,6 @@ int inv_mod2(int u, int v)
 
 	do
 	{
-
 		do
 		{
 			if ((t1 & 1) == 0)
@@ -98,6 +124,7 @@ int inv_mod2(int u, int v)
 				t1 = (t1 + v) >> 1;
 				t3 = t3 >> 1;
 			}
+
 		Y4:;
 		} while ((t3 & 1) == 0);
 
@@ -111,6 +138,7 @@ int inv_mod2(int u, int v)
 			v1 = v - t1;
 			v3 = -t3;
 		}
+	
 		t1 = u1 - v1;
 		t3 = u3 - v3;
 		if (t1 < 0)
@@ -118,25 +146,28 @@ int inv_mod2(int u, int v)
 			t1 = t1 + v;
 		}
 	} while (t3 != 0);
+	
 	return u1;
 }
 
 /* return (a^b) mod m */
 int pow_mod(int a, int b, int m)
 {
-	int r, aa;
+	int r = 1;
+	int aa = a;
 
-	r = 1;
-	aa = a;
 	while (1)
 	{
 		if (b & 1)
 			r = mul_mod(r, aa, m);
+	
 		b = b >> 1;
 		if (b == 0)
 			break;
+	
 		aa = mul_mod(aa, aa, m);
 	}
+
 	return r;
 }
 
@@ -147,10 +178,11 @@ int is_prime(int n)
 	if ((n % 2) == 0)
 		return 0;
 
-	r = (int)(sqrt(n));
+	r = (int) sqrt(n);
 	for (i = 3; i <= r; i += 2)
 		if ((n % i) == 0)
 			return 0;
+			
 	return 1;
 }
 
@@ -161,28 +193,9 @@ int next_prime(int n)
 	{
 		n++;
 	} while (!is_prime(n));
+
 	return n;
 }
-
-#define DIVN(t, a, v, vinc, kq, kqinc)  \
-    {                                   \
-        kq += kqinc;                    \
-        if (kq >= a)                    \
-        {                               \
-            do                          \
-            {                           \
-                kq -= a;                \
-            } while (kq >= a);          \
-            if (kq == 0)                \
-            {                           \
-                do                      \
-                {                       \
-                    t = t / a;          \
-                    v += vinc;          \
-                } while ((t % a) == 0); \
-            }                           \
-        }                               \
-    }
 
 int main(int argc, char* argv[])
 {
@@ -191,23 +204,25 @@ int main(int argc, char* argv[])
 
 	if (argc < 2 || (n = atoi(argv[1])) <= 0)
 	{
-		printf("This program computes the n'th decimal digit of pi\n"
-			"usage: pi n , where n is the digit you want\n");
+		printf("Usage: pi n\n");
+		printf("\nn   The digit of pi to compute\n");
+		printf("\nComputes the value of pi at the specified digit.\n");
 		exit(1);
 	}
 
-	N = (int)((n + 20) * log(10) / log(13.5));
+	N = (int) ((n + 20) * log(10) / log(13.5));
 	sum = 0;
 
-	for (a = 2; a <= (3 * N); a = next_prime(a))
+	for (a = 2; a <= 3 * N; a = next_prime(a))
 	{
-		vmax = (int)(log(3 * N) / log(a));
+		vmax = (int) (log(3 * N) / log(a));
 		if (a == 2)
 		{
 			vmax = vmax + (N - n);
 			if (vmax <= 0)
 				continue;
 		}
+
 		av = 1;
 		for (i = 0; i < vmax; i++)
 			av = av * a;
@@ -218,6 +233,7 @@ int main(int argc, char* argv[])
 		kq2 = -1;
 		kq3 = -3;
 		kq4 = -2;
+		
 		if (a == 2)
 		{
 			num = 1;
@@ -250,6 +266,7 @@ int main(int argc, char* argv[])
 				t = t * 2;
 			else
 				v++;
+		
 			den = mul_mod(den, t, av);
 
 			if (v > 0)
@@ -258,9 +275,11 @@ int main(int argc, char* argv[])
 					t = inv_mod2(den, av);
 				else
 					t = inv_mod(den, av);
+
 				t = mul_mod(t, num, av);
 				for (i = v; i < vmax; i++)
 					t = mul_mod(t, a, av);
+
 				t1 = (25 * k - 3);
 				t = mul_mod(t, t1, av);
 				s += t;
@@ -271,9 +290,9 @@ int main(int argc, char* argv[])
 
 		t = pow_mod(5, n - 1, av);
 		s = mul_mod(s, t, av);
-		sum = fmod(sum + (double)s / (double)av, 1.0);
+		sum = fmod(sum + (double) s / (double) av, 1.0);
 	}
-	printf("Decimal digits of pi at position %d: %09d\n", n,
-		(int)(sum * 1e9));
+
+	printf("Decimal digits of pi at position %d: %09d\n", n, (int) (sum * 1e9));
 	return 0;
 }
