@@ -27,8 +27,8 @@
 #include <math.h>
 
 
- /* uncomment the following line to use 'long long' integers (which we do) */
- #define HAS_LONG_LONG
+/* uncomment the following line to use 'long long' integers (which we do) */
+#define HAS_LONG_LONG
 
 #ifdef HAS_LONG_LONG
 #define mul_mod(a, b, m) (((long long)(a) * (long long)(b)) % (m))
@@ -41,17 +41,15 @@
 	kq += kqinc;								\
 	if (kq >= a)								\
 	{												\
-		do											\
-		{											\
+		while (kq >= a)						\
 			kq -= a;								\
-		} while (kq >= a);					\
 		if (kq == 0)							\
 		{											\
 			do										\
 			{										\
 				t = t / a;						\
 				v += vinc;						\
-			} while ((t % a) == 0); 		\
+			} while (t % a == 0);			\
 		}											\
 	}												\
 }
@@ -83,7 +81,7 @@ int inv_mod(int x, int y)
 	a = a % y;
 	if (a < 0)
 		a = y + a;
-	
+
 	return a;
 }
 
@@ -94,7 +92,6 @@ int inv_mod2(int u, int v)
 
 	int u1 = 1;
 	int u3 = u;
-
 	int v1 = v;
 	int v3 = v;
 
@@ -138,15 +135,13 @@ int inv_mod2(int u, int v)
 			v1 = v - t1;
 			v3 = -t3;
 		}
-	
+
 		t1 = u1 - v1;
 		t3 = u3 - v3;
 		if (t1 < 0)
-		{
 			t1 = t1 + v;
-		}
 	} while (t3 != 0);
-	
+
 	return u1;
 }
 
@@ -175,25 +170,22 @@ int pow_mod(int a, int b, int m)
 int is_prime(int n)
 {
 	int r, i;
-	if ((n % 2) == 0)
+
+	if (n % 2 == 0)
 		return 0;
 
 	r = (int) sqrt(n);
 	for (i = 3; i <= r; i += 2)
-		if ((n % i) == 0)
+		if (n % i == 0)
 			return 0;
-			
+
 	return 1;
 }
 
 /* return the prime number immediatly after n */
 int next_prime(int n)
 {
-	do
-	{
-		n++;
-	} while (!is_prime(n));
-
+	while (!is_prime(++n));
 	return n;
 }
 
@@ -207,7 +199,7 @@ int main(int argc, char* argv[])
 		printf("Usage: pi n\n");
 		printf("\nn   The digit of pi to compute\n");
 		printf("\nComputes the value of pi at the specified digit.\n");
-		exit(1);
+		return 1;
 	}
 
 	N = (int) ((n + 20) * log(10) / log(13.5));
@@ -218,7 +210,7 @@ int main(int argc, char* argv[])
 		vmax = (int) (log(3 * N) / log(a));
 		if (a == 2)
 		{
-			vmax = vmax + (N - n);
+			vmax = vmax + N - n;
 			if (vmax <= 0)
 				continue;
 		}
@@ -271,16 +263,12 @@ int main(int argc, char* argv[])
 
 			if (v > 0)
 			{
-				if (a != 2)
-					t = inv_mod2(den, av);
-				else
-					t = inv_mod(den, av);
-
+				t = a != 2 ? inv_mod2(den, av) : inv_mod(den, av);
 				t = mul_mod(t, num, av);
 				for (i = v; i < vmax; i++)
 					t = mul_mod(t, a, av);
 
-				t1 = (25 * k - 3);
+				t1 = 25 * k - 3;
 				t = mul_mod(t, t1, av);
 				s += t;
 				if (s >= av)
@@ -290,7 +278,7 @@ int main(int argc, char* argv[])
 
 		t = pow_mod(5, n - 1, av);
 		s = mul_mod(s, t, av);
-		sum = fmod(sum + (double) s / (double) av, 1.0);
+		sum = fmod(sum + (double) s / av, 1.0);
 	}
 
 	printf("Decimal digits of pi at position %d: %09d\n", n, (int) (sum * 1e9));
