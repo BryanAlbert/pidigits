@@ -18,13 +18,15 @@
  * integer version of 'mul_mod' (see HAS_LONG_LONG).
  * 
  * From https://bellard.org/pi/pi1.c, see https://bellard.org/pi/
- * 
+ * Refactored and modified to display 10 digits instead of 9 (which seems
+ * accurate?), to time the computation and show a rough progress bar.
  */
 
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include <sys\timeb.h>
 
 
 /* uncomment the following line to use 'long long' integers (which we do) */
@@ -205,6 +207,13 @@ int main(int argc, char* argv[])
 	N = (int) ((n + 20) * log(10) / log(13.5));
 	sum = 0;
 
+	printf("Computing the %d'th digit of pi...\n", n);
+	struct timeb start_time, end_time;
+	ftime(&start_time);
+
+	int progress = 0;
+	printf(".....................................................................................................................\r");
+
 	for (a = 2; a <= 3 * N; a = next_prime(a))
 	{
 		vmax = (int) (log(3 * N) / log(a));
@@ -279,8 +288,15 @@ int main(int argc, char* argv[])
 		t = pow_mod(5, n - 1, av);
 		s = mul_mod(s, t, av);
 		sum = fmod(sum + (double) s / av, 1.0);
+		for (; progress < 40 * a / N; progress++)
+			printf("*");
 	}
 
-	printf("Decimal digits of pi at position %d: %09d\n", n, (int) (sum * 1e9));
+	printf("\nDecimal digits of pi at position %d: %010lld\n", n, (long long) (sum * 1e10));
+
+	ftime(&end_time);
+	double seconds = (int) (end_time.time - start_time.time) + (end_time.millitm - start_time.millitm) / 1000.0;
+	printf("Time to compute: %d:%02d.%03d", (int) seconds / 60, (int) seconds % 60, (int) ((seconds - floor(seconds)) * 1000 + 0.5));
+
 	return 0;
 }
