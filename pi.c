@@ -19,7 +19,7 @@
  * 
  * From https://bellard.org/pi/pi1.c, see https://bellard.org/pi/
  * Refactored and modified to display 10 digits instead of 9 (which seems
- * accurate?), to time the computation and show a rough progress bar.
+ * accurate?), to time the computation and to show a rough progress bar.
  */
 
 
@@ -296,7 +296,7 @@ int main(int argc, char* argv[])
 
 	ftime(&end_time);
 	double seconds = (int) (end_time.time - start_time.time) + (end_time.millitm - start_time.millitm) / 1000.0;
-	printf("Time to compute: %d:%02d.%03d", (int) seconds / 60, (int) seconds % 60, (int) ((seconds - floor(seconds)) * 1000 + 0.5));
-
+	printf("Time to compute: %d:%02d.%03d\n", (int) seconds / 60, (int) seconds % 60, (int) ((seconds - floor(seconds)) * 1000 + 0.5));
+	printf("Largest prime computed: %d\n", a);
 	return 0;
 }
