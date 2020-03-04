@@ -6,6 +6,7 @@
          "label": "cl.exe build active file",
          "command": "cl.exe",
          "args": [
+            "/W4",
             "/Zi",
             "/EHsc",
             "/Fe:",
