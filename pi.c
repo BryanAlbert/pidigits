@@ -23,9 +23,10 @@
  */
 
 
+#include <math.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <math.h>
+#include <string.h>
 #include <sys\timeb.h>
 
 
@@ -49,9 +50,10 @@
 		{											\
 			do										\
 			{										\
-				t = t / a;						\
+				t /= a;							\
 				v += vinc;						\
-			} while (t % a == 0);			\
+			}										\
+			while (t % a == 0);				\
 		}											\
 	}												\
 }
@@ -78,9 +80,10 @@ int inv_mod(int x, int y)
 		t = u;
 		u = v - q * u;
 		v = t;
-	} while (u != 0);
+	}
+	while (u != 0);
 
-	a = a % y;
+	a %= y;
 	if (a < 0)
 		a = y + a;
 
@@ -125,7 +128,8 @@ int inv_mod2(int u, int v)
 			}
 
 		Y4:;
-		} while ((t3 & 1) == 0);
+		}
+		while ((t3 & 1) == 0);
 
 		if (t3 >= 0)
 		{
@@ -142,7 +146,8 @@ int inv_mod2(int u, int v)
 		t3 = u3 - v3;
 		if (t1 < 0)
 			t1 = t1 + v;
-	} while (t3 != 0);
+	}
+	while (t3 != 0);
 
 	return u1;
 }
@@ -158,7 +163,7 @@ int pow_mod(int a, int b, int m)
 		if (b & 1)
 			r = mul_mod(r, aa, m);
 	
-		b = b >> 1;
+		b >>= 1;
 		if (b == 0)
 			break;
 	
@@ -191,9 +196,38 @@ int next_prime(int n)
 	return n;
 }
 
+char * get_ending(int number, char * ending)
+{
+	int teen = number % 100;
+	if (teen == 11 || teen == 12 || teen == 13)
+	{
+		 strcpy_s(ending, 3, "th");
+	}
+	else
+	{
+		switch (number % 10)
+		{
+			case 1:
+				strcpy_s(ending, 3, "st");
+				break;
+			case 2:
+				strcpy_s(ending, 3, "nd");
+				break;
+			case 3:
+				strcpy_s(ending, 3, "rd");
+				break;
+			default:
+				strcpy_s(ending, 3, "th");
+				break;
+		}
+	}
+
+	return ending;
+}
+
 int main(int argc, char* argv[])
 {
-	int av, a, vmax, N, n, num, den, k, kq1, kq2, kq3, kq4, t, v, s, i, t1;
+	int av, a, vmax, N, n, num, den, k, kq1, kq2, kq3, kq4, t, v, s, i;
 	double sum;
 
 	if (argc < 2 || (n = atoi(argv[1])) <= 0)
@@ -207,7 +241,8 @@ int main(int argc, char* argv[])
 	N = (int) ((n + 20) * log(10) / log(13.5));
 	sum = 0;
 
-	printf("Computing the %d'th digit of pi...\n", n);
+	char ending[3] = "th";
+	printf("Computing the %d'%s digit of pi...\n", n, get_ending(n, ending));
 	struct timeb start_time, end_time;
 	ftime(&start_time);
 
@@ -219,14 +254,14 @@ int main(int argc, char* argv[])
 		vmax = (int) (log(3 * N) / log(a));
 		if (a == 2)
 		{
-			vmax = vmax + N - n;
+			vmax += N - n;
 			if (vmax <= 0)
 				continue;
 		}
 
 		av = 1;
 		for (i = 0; i < vmax; i++)
-			av = av * a;
+			av *= a;
 
 		s = 0;
 		den = 1;
@@ -248,7 +283,6 @@ int main(int argc, char* argv[])
 
 		for (k = 1; k <= N; k++)
 		{
-
 			t = 2 * k;
 			DIVN(t, a, v, -1, kq1, 2);
 			num = mul_mod(num, t, av);
@@ -261,10 +295,10 @@ int main(int argc, char* argv[])
 			DIVN(t, a, v, 1, kq3, 9);
 			den = mul_mod(den, t, av);
 
-			t = (3 * k - 2);
+			t = 3 * k - 2;
 			DIVN(t, a, v, 1, kq4, 3);
 			if (a != 2)
-				t = t * 2;
+				t *= 2;
 			else
 				v++;
 		
@@ -277,8 +311,7 @@ int main(int argc, char* argv[])
 				for (i = v; i < vmax; i++)
 					t = mul_mod(t, a, av);
 
-				t1 = 25 * k - 3;
-				t = mul_mod(t, t1, av);
+				t = mul_mod(t, 25 * k - 3, av);
 				s += t;
 				if (s >= av)
 					s -= av;
