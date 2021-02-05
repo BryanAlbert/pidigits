@@ -3,5 +3,8 @@
       "cmath": "c",
       "stdlib.h": "c",
       "time.h": "c"
-   }
+   },
+   "editor.detectIndentation": false,
+	"editor.insertSpaces": false,
+	"editor.tabSize": 3
 }
