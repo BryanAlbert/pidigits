@@ -8,7 +8,7 @@ rem C++ compiler and so on).
 setlocal
 
 echo.
-echo Calling VsDevDmd.bat to configure Visual Studio Command Prompt
+echo Calling VsDevCmd.bat to configure Visual Studio Command Prompt
 echo.
 
 call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\Tools\VsDevCmd.bat"
