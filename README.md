@@ -39,3 +39,27 @@ on 64 bit machines
 * Refactored quite a bit
 * Displays 10 digits instead of 9 (which seems accurate)
 * Implements a rough progress bar and a timer for longer calculations
+
+## Usage
+From the `pi.exe`'s usage:
+```
+Usage: pi n
+
+n   The 0-based digit of pi to compute
+
+Computes ten digits of pi at the specified digit.
+```
+
+For example:
+```
+PS C:\Users\bryan\Source\repos\Tools\PiDigits> .\pidigits.exe 4
+Computing the 4'th digit of pi...
+********************************************************************************************************************.
+Decimal digits of pi at position 4: 5926535897
+Time to compute: 0:00.011
+Largest prime computed: 67
+```
+
+The 0'th digit is 3, the 4'th digit is 5.
+
+To build, run `LaunchCode.bat` to set up the development environment and launch Visual Studio Code in it so that it can compile and link the c file. 

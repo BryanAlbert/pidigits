@@ -232,9 +232,9 @@ int main(int argc, char* argv[])
 
 	if (argc < 2 || (n = atoi(argv[1])) <= 0)
 	{
-		printf("Usage: pi n\n");
-		printf("\nn   The digit of pi to compute\n");
-		printf("\nComputes the value of pi at the specified digit.\n");
+		printf("Usage: pi.exe n\n");
+		printf("\nn   The 0-based digit of pi to compute\n");
+		printf("\nComputes ten digits of pi at the specified digit.\n");
 		return 1;
 	}
 
